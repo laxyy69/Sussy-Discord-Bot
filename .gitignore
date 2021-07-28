@@ -114,3 +114,4 @@ dmypy.json
 .pyre/
 src/test.json
 todo.txt
+src/test.py
