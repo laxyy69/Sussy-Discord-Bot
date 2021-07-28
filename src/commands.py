@@ -1,8 +1,6 @@
 import asyncio
 import discord
 import inspect
-
-from discord import colour
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
 
@@ -14,7 +12,7 @@ NSFW = commands.is_nsfw
 
 commands_classes: list[commands.Cog] = []
 
-def add_class(cls):
+def add_class(cls: commands.Cog) -> commands.Cog:
     commands_classes.append(cls)
 
     return cls
@@ -27,6 +25,7 @@ class Owner(commands.Cog):
 
 
     @COMMAND()
+    @OWNER()
     async def test(self, ctx: commands.Context):
         pass
 
@@ -136,7 +135,6 @@ class Reddit(commands.Cog):
     @COMMAND()
     async def dankmemes(self, ctx: commands.Context, loop: int=1):
         await self.client.reddit(ctx, 'dankmemes', loop)
-    
 
 
 @add_class
@@ -176,7 +174,6 @@ class Misc(commands.Cog):
                 colour=discord.Colour.blue()
             )
         )
-
 
 
 def setup(client: commands.Bot) -> None:
