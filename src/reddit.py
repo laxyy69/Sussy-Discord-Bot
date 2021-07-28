@@ -38,7 +38,7 @@ class Reddit(aiohttp.ClientSession):
 
             # This checks if a dot is in the end of the url, if so it's probably an image link 
             if '.' in url[-4:]: 
-                embed: discord.Embed = discord.Embed(colour=discord.Colour.blue(), title=data['title'])
+                embed: discord.Embed = discord.Embed(colour=discord.Colour.blue(), title=data['title'], url=url)
                 embed.set_image(url=url)
                 embed.set_footer(text='%i/%i' % (i + 1, loop))
                 
