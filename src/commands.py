@@ -4,6 +4,8 @@ import inspect
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
 
+from var import MyJson
+
 
 COMMAND = commands.command
 OWNER = commands.is_owner
@@ -76,39 +78,75 @@ class Mod(commands.Cog):
         await ctx.send(embed=embed)
 
 
+    @COMMAND()
+    @commands.has_permissions(administrator=True)
+    async def setprefix(self, ctx: commands.Context, new_prefix: str) -> None:
+        guild_id: str = str(ctx.guild.id)
+
+        with MyJson.readwrite('prefixes.json') as p:
+            p[guild_id] = new_prefix
+
+        await ctx.reply("New prefix is: **%s**" % await self.client.get_prefix(ctx.message))
+
+
 @add_class
 class Nerd(commands.Cog):
     def __init__(self, client: Bot) -> None:
         self.client = client
 
 
-    @COMMAND()
+    @COMMAND(aliases=['commandcode', 'commandc'])
     async def command_code(self, ctx: commands.Context, function_name: str) -> None:
-        for cmd in self.client.commands:
-            if str(cmd) == function_name:
-                source_code: str = inspect.getsource(cmd.callback)
+        embed = discord.Embed(colour=discord.Colour.blue())
+        file = None
+        
+        try:
+            cmd_function = self.client.all_commands[function_name].callback
+        except KeyError:
+            embed.description = 'Command **%s** not found.' % function_name
+            embed.colour = discord.Colour.from_rgb(255, 0, 0)
+        else:
+            source_code: str = inspect.getsource(cmd_function)
+                
+            with open('source_code.py', 'w') as f:
+                f.write(source_code)
 
-                return await ctx.send('```py\n%s```' % source_code)
+            file = discord.File('source_code.py')
 
-        await ctx.reply(
-            embed=discord.Embed(
-                description='Command **%s** not found.' % function_name,
-                colour=discord.Colour.from_rgb(255, 0, 0)
-            )
-        )
+            embed.description = '**%s** source code:' % function_name
+        finally:        
+            await ctx.send(embed=embed, file=file)
+
+            with open('source_code.py', 'w'): pass # empting source_code.py
 
 
-    @COMMAND()
+    @COMMAND(aliases=['clientcode', 'clientc'])
     async def client_code(self, ctx: commands.Context, function_name: str) -> None:
         try:
-            print(self.client.__dir__())
             func = self.client.__getattribute__(function_name)
-        except Exception as e:
-            await ctx.send('`' + str(e) + '`')
+        except AttributeError as e:
+            await ctx.send(
+                embed=discord.Embed(
+                    description='`%s`' % e,
+                    colour=discord.Colour.from_rgb(255, 0, 0)
+                )
+            )
         else:
             source_code: str = inspect.getsource(func)
 
-            await ctx.send('```py\n%s```' % source_code)
+            with open('source_code.py', 'w') as f:
+                f.write(source_code)
+
+            file = discord.File('source_code.py')
+
+            await ctx.send(
+                file=file, 
+                embed=discord.Embed(
+                    description='**%s** source code:' % str(function_name)
+                )
+            )
+            
+            with open('source_code.py', 'w'): pass
 
 
 @add_class
