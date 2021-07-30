@@ -17,7 +17,8 @@ import asyncio
 import discord
 import inspect
 import os
-
+import random
+from googlesearch import search
 from discord import colour
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
@@ -274,6 +275,34 @@ class Misc(commands.Cog):
                 colour=discord.Colour.blue()
             )
         )
+
+
+    @COMMAND()
+    async def google(self, ctx: commands.Context, *, google_search: str) -> None:
+        """ | google command |
+
+        Gets links using googlesearch module
+
+        Paremters
+        ----------
+            ctx: :class:`discord.ext.commands.Context`
+                Conext
+
+            google_search: :class:`str`
+                What ever you want to search using google
+
+        Returns
+        --------
+            None: :class:`NoneType`
+        
+        """
+
+        await ctx.send(
+            random.choice(
+                [link for link in search(google_search, stop=3, pause=0)]
+            )
+        )
+
 
 
 def setup(client: commands.Bot) -> None:
