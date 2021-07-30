@@ -16,6 +16,9 @@ Status: Still in development.
 import asyncio
 import discord
 import inspect
+import os
+
+from discord import colour
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
 from var import MyJson
@@ -177,6 +180,35 @@ class Nerd(commands.Cog):
             )
             
             with open('source_code.py', 'w'): pass
+
+
+    @COMMAND()
+    async def lines(self, ctx: commands.Context) -> None:
+        """ | lines command |
+        
+        This will say how much lines of code in the 'src' dir
+
+        Paremters
+        ----------
+            ctx: :class:`commands.Conext`
+                Context
+        
+        """
+
+        lines_of_code: int = 0
+
+        for file in os.scandir('src/'):
+            if file.name.endswith('.py'):
+                with open(file) as f:
+                    lines_of_code += len(f.readlines())
+
+        await ctx.send(
+            embed=discord.Embed(
+                description='I have **%i** lines of code.' % lines_of_code,
+                colour=discord.Colour.blue()
+            )
+        )
+
 
 
 @add_class
