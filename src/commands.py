@@ -211,7 +211,6 @@ class Nerd(commands.Cog):
         )
 
 
-
 @add_class
 class Reddit(commands.Cog):
     def __init__(self, client: Bot) -> None:
@@ -247,6 +246,62 @@ class Nsfw(commands.Cog):
     @NSFW()
     async def nsfw(self, ctx: commands.Bot) -> None:
         print('PORN YOU FUCKING HORNY BITCH')
+
+
+@add_class
+class User(commands.Cog):
+    def __init__(self, client: Bot) -> None:
+        self.client: Bot = client
+
+
+    @COMMAND(aliases=['av'])
+    async def pfp(self, ctx: commands.Context, member: discord.Member=None) -> None:
+        """ | Profile Pic comand |
+
+        Shows the Profile Pic of a user
+
+        Paremters
+        ----------
+        ctx: :class:`discord.ext.commands.Context`
+            Context
+
+        member: Optional[:class:`discord.Member`] 
+            If you wanna see other member's profile pic
+
+
+        Returns
+        --------
+        None: :class:`NoneType`
+        
+        """
+
+        # If no member was passed in, then make it who ever sent the message
+        member: discord.Member = member or ctx.author
+
+        avatar_url = member.avatar_url
+
+        embed = discord.Embed(colour=discord.Colour.blue(), description='Profile Pic :heart:')
+        embed.set_image(url=avatar_url)
+        embed.set_author(name=member.display_name, icon_url=avatar_url)
+
+        msg: discord.Message = await ctx.send(embed=embed)
+
+        # There's a chance that the bot will give It's "opinion"
+        if random.randint(0, 1) == 1:
+            await asyncio.sleep(random.randint(0, 2))
+
+            await msg.reply(
+                random.choice([
+                    'Cool!', 
+                    "It's OK", 
+                    "WTF???", 
+                    "Who this?", 
+                    "Hmmm", 
+                    "Interesting profile pic", 
+                    "Damn! One ugly avatar!", 
+                    "I rate it: **%i** out of 10" % random.randint(0, 10)
+                ])
+            )
 
 
 @add_class
