@@ -12,8 +12,8 @@ Status: Still in development.
 """
 
 
-
 import asyncio
+from typing import Union
 import discord
 import inspect
 import os
@@ -123,22 +123,43 @@ class Mod(commands.Cog):
         await ctx.reply("New prefix is: **%s**" % await self.client.get_prefix(ctx.message))
 
 
+
+#class NerdFunctions:
+#    def __init__(self, client: Bot) -> None:
+#        self.client = client
+
+
 @add_class
 class Nerd(commands.Cog):
     def __init__(self, client: Bot) -> None:
         self.client = client
 
 
-    @COMMAND(aliases=['commandcode', 'commandc'])
-    async def command_code(self, ctx: commands.Context, function_name: str) -> None:
-        embed = discord.Embed(colour=discord.Colour.blue())
-        file = None
+    # Not a command, used for `code` command
+    async def command_code(self, function_name: str) -> Union[discord.File, None]:
+        """ | Get Command Source Code|
+
+        Gets the source code of a function using `inspect.getsource`
+
+        Paremters
+        ----------
+        function_name: :class:`str`
+            The command name
+
+
+        Returns
+        --------
+            Returns None if it didn't found the function
+
+            But if it did found:
+                file: :class:`discord.File` 
         
+        """
+
         try:
             cmd_function = self.client.all_commands[function_name].callback
         except KeyError:
-            embed.description = 'Command **%s** not found.' % function_name
-            embed.colour = discord.Colour.from_rgb(255, 0, 0)
+            return None
         else:
             source_code: str = inspect.getsource(cmd_function)
                 
@@ -147,24 +168,33 @@ class Nerd(commands.Cog):
 
             file = discord.File('source_code.py')
 
-            embed.description = '**%s** source code:' % function_name
-        finally:        
-            await ctx.send(embed=embed, file=file)
-
-            with open('source_code.py', 'w'): pass # empting source_code.py
+            return file
 
 
-    @COMMAND(aliases=['clientcode', 'clientc'])
-    async def client_code(self, ctx: commands.Context, function_name: str) -> None:
+    # Not a command, used for `code` command
+    async def client_code(self, function_name: str) -> Union[discord.File, None]:
+        """ | Get Bot Source Code |
+
+        Gets the :class:`Bot` functions source code
+
+        Paremters
+        ----------
+        function_name: :class:`str`
+            The function name of :class:`Bot`
+
+
+        Returns
+        --------
+        Returns None if there's no attribute `function_name` of :class:`Bot`
+
+        file: :class:`discord.File`
+        
+        """
+        
         try:
             func = self.client.__getattribute__(function_name)
         except AttributeError as e:
-            await ctx.send(
-                embed=discord.Embed(
-                    description='`%s`' % e,
-                    colour=discord.Colour.from_rgb(255, 0, 0)
-                )
-            )
+            return None
         else:
             source_code: str = inspect.getsource(func)
 
@@ -173,14 +203,23 @@ class Nerd(commands.Cog):
 
             file = discord.File('source_code.py')
 
-            await ctx.send(
-                file=file, 
-                embed=discord.Embed(
-                    description='**%s** source code:' % str(function_name)
-                )
+            return file
+
+
+    @COMMAND()
+    async def code(self, ctx: commands.Context, function_name: str) -> None:
+        file: discord.File = await self.command_code(function_name) or await self.client_code(function_name)
+
+        if file is None:
+            return await ctx.send("**No function `%s` was found.**" % function_name)
+
+        await ctx.send(
+            file=file,
+            embed=discord.Embed(
+                description='**`%s`** source code:' % function_name,
+                colour=discord.Colour.blue()
             )
-            
-            with open('source_code.py', 'w'): pass
+        )
 
 
     @COMMAND()
@@ -256,7 +295,7 @@ class User(commands.Cog):
 
     @COMMAND(aliases=['av'])
     async def pfp(self, ctx: commands.Context, member: discord.Member=None) -> None:
-        """ | Profile Pic comand |
+        """ | Profile Pic command |
 
         Shows the Profile Pic of a user
 
