@@ -1,12 +1,27 @@
+"""
+This is not an script file, It's meant to be imported.
+
+This is where all the bot commands are.
+
+
+Author: SasumaTho
+Discord: SasumaTho#9999
+
+Status: Still in development.
+
+"""
+
+
+
 import asyncio
 import discord
 import inspect
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
-
 from var import MyJson
 
 
+# This is used to @ decorate a functions
 COMMAND = commands.command
 OWNER = commands.is_owner
 NSFW = commands.is_nsfw
@@ -15,6 +30,21 @@ NSFW = commands.is_nsfw
 commands_classes: list[commands.Cog] = []
 
 def add_class(cls: commands.Cog) -> commands.Cog:
+    """ | Decorator for classes |
+
+    Appends :parm:`cls` to :var:`commands_classes`
+    
+    Parmaters
+    ----------
+        cls: :class:`discord.ext.commands.Cog`
+            The class be a subclass of `discord.ext.commands.Cog`
+
+    Returns
+    --------
+        :parm:`cls`
+    
+    """
+
     commands_classes.append(cls)
 
     return cls
@@ -215,6 +245,19 @@ class Misc(commands.Cog):
 
 
 def setup(client: commands.Bot) -> None:
+    """ | Add each cog |
+    
+    Paremters
+    ----------
+        client: :class:`discord.ext.commands.Bot`
+            Or a subclass of `discord.ext.commands.Bot`
+
+    Returns
+    --------
+        NoneType: `None`
+    
+    """
+
     for cmd_cls in commands_classes:
         client.add_cog(cmd_cls(client))
         print('Added:', cmd_cls.__name__)

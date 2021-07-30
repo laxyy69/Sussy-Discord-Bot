@@ -1,3 +1,14 @@
+"""
+This is a script file, should be executed
+
+
+Author: SasumaTho
+Discord: SasumaTho#9999
+
+Status: Done. Might be changed in the future.
+
+"""
+
 import discord
 import os
 import sys
@@ -8,13 +19,27 @@ PREFIX='.'
 
 
 def main(args: list[str]) -> None:
+    """ | Enter point |
+    
+    Paremters
+    ---------
+
+    args: :class:`list[str]`
+        This should be `sys.argv`
+
+    
+    Returns:
+        None
+
+    """
+
     client = Bot(
         command_prefix=PREFIX,
         args=args,
         intents=discord.Intents().all()
     )
     
-    client.load_extension('commands')
+    client.load_extension('commands') # This is for 'loading the bot commands'
 
     load_dotenv()
 

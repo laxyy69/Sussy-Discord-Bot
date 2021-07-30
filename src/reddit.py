@@ -1,3 +1,17 @@
+"""
+This is not an script file, It's meant to be imported.
+
+
+Author: SasumaTho
+Discord: SasumaTho#9999
+
+
+Status: Still in development
+
+"""
+
+
+
 import random
 import aiohttp
 import discord
@@ -6,16 +20,24 @@ from discord.ext import commands
 
 
 class Reddit(aiohttp.ClientSession):
+    """ | To get posts from reddit |
+
+    This class is a subclass of `aiohttp.ClientSession`
+    
+    
+    """
     def __init__(self) -> None:
         super().__init__()
         
+        self.types: list[str] = ['hot', 'top', 'new']
         self.max_loop: int = 25
-        self.reddit_url: str = 'https://www.reddit.com/r/{}/hot.json?sort=hot'
 
     
     async def __call__(self, ctx: commands.Context, sub_reddit: str, loop: int=1) -> None:
-        channel: discord.TextChannel = ctx.channel
+        self.reddit_url: str = 'https://www.reddit.com/r/{}/%s.json?sort=%s' % (random.choice(self.types), random.choice(self.types))
+        print(self.reddit_url)
         
+        channel: discord.TextChannel = ctx.channel
         loop = self.max_loop if loop > self.max_loop else loop
 
         async with self.get(self.reddit_url.format(sub_reddit)) as r:
