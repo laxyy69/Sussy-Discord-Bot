@@ -115,3 +115,4 @@ dmypy.json
 src/test.json
 todo.txt
 src/test.py
+jsonfiles/test.json
