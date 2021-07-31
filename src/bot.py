@@ -65,6 +65,23 @@ class Bot(commands.Bot):
         self.reddit: Reddit = Reddit()
         self.reference: Reference = None
 
+        self._8ball_says: list[str] = [ # TODO: Put it in a json file, and not hard coded
+            'no.', 
+            'no???', 
+            'Hell NO!', 
+            'Bruh, you know its a NO', 
+            'yes.', 
+            'Yes??', 
+            'ok, yea', 
+            'Ugg, yes...', 
+            'Tbh, no.', 
+            'Tbh, yes', 
+            'can you not', 
+            "ask again later when I'm less busy with ur daddy", 
+            'sure, why not', 
+            "heck off, you know that's a no"
+        ]
+
 
     async def get_prefix(self, message: discord.Message) -> str:
         """ |Get prefix per server|

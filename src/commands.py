@@ -14,6 +14,7 @@ Status: Still in development.
 
 import asyncio
 from datetime import datetime
+from operator import add
 from types import FunctionType
 from typing import OrderedDict, Union
 from asyncio.tasks import create_task
@@ -511,6 +512,26 @@ class User(commands.Cog):
                     ]
                 )
             )
+
+
+@add_class
+class Fun(commands.Cog):
+    def __init__(self, client: Bot) -> None:
+        self.client: Bot = client
+
+
+    @commands.command(name='8ball')
+    async def _8ball(self, ctx: commands.Context, *, question: str):
+        embed = discord.Embed(
+            title=random.choice(self.client._8ball_says), 
+            colour=discord.Colour.from_rgb(
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255)
+            )
+        )
+
+        await ctx.reply(embed=embed)
 
 
 @add_class
