@@ -13,7 +13,8 @@ Status: Still in development.
 
 
 import asyncio
-from typing import Union
+from types import FunctionType
+from typing import OrderedDict, Union
 import discord
 import inspect
 import os
@@ -60,8 +61,8 @@ class Owner(commands.Cog):
         self.client = client
 
 
-    @COMMAND()
-    @OWNER()
+    @commands.command()
+    @commands.is_owner()
     async def test(self, ctx: commands.Context):
         pass
 
@@ -72,19 +73,19 @@ class Mod(commands.Cog):
         self.client = client
 
 
-    @COMMAND()
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str=None) -> None:
         await member.kick(reason=reason)
 
 
-    @COMMAND()
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str=None) -> None:
         await member.ban(reason=reason)
 
 
-    @COMMAND()
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def unban(self, ctx: commands.Context, member_id: int, *, reason: str=None):
         guild: discord.Guild = ctx.guild
@@ -96,7 +97,7 @@ class Mod(commands.Cog):
         await ctx.reply("**%s** unban!" % user)
 
 
-    @COMMAND()
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def bans(self, ctx: commands.Context):
         embed = discord.Embed(title='Banned members', colour=discord.Colour.from_rgb(255, 0, 0))
@@ -112,7 +113,7 @@ class Mod(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @COMMAND()
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def setprefix(self, ctx: commands.Context, new_prefix: str) -> None:
         guild_id: str = str(ctx.guild.id)
@@ -121,12 +122,6 @@ class Mod(commands.Cog):
             p[guild_id] = new_prefix
 
         await ctx.reply("New prefix is: **%s**" % await self.client.get_prefix(ctx.message))
-
-
-
-#class NerdFunctions:
-#    def __init__(self, client: Bot) -> None:
-#        self.client = client
 
 
 @add_class
@@ -157,10 +152,12 @@ class Nerd(commands.Cog):
         """
 
         try:
-            cmd_function = self.client.all_commands[function_name].callback
+            cmd_function: FunctionType = self.client.all_commands[function_name].callback
         except KeyError:
             return None
         else:
+            print(cmd_function.__code__.co_filename)
+
             source_code: str = inspect.getsource(cmd_function)
                 
             with open('source_code.py', 'w') as f:
@@ -192,10 +189,12 @@ class Nerd(commands.Cog):
         """
         
         try:
-            func = self.client.__getattribute__(function_name)
+            func: FunctionType = self.client.__getattribute__(function_name)
         except AttributeError as e:
             return None
         else:
+            print(func.__code__.co_filename)
+
             source_code: str = inspect.getsource(func)
 
             with open('source_code.py', 'w') as f:
@@ -206,7 +205,7 @@ class Nerd(commands.Cog):
             return file
 
 
-    @COMMAND()
+    @commands.command()
     async def code(self, ctx: commands.Context, function_name: str) -> None:
         file: discord.File = await self.command_code(function_name) or await self.client_code(function_name)
 
@@ -222,7 +221,7 @@ class Nerd(commands.Cog):
         )
 
 
-    @COMMAND()
+    @commands.command()
     async def lines(self, ctx: commands.Context) -> None:
         """ | lines command |
         
@@ -256,22 +255,22 @@ class Reddit(commands.Cog):
         self.client = client
 
 
-    @COMMAND(aliases=['r/', 'reddit'])
+    @commands.command(aliases=['r/', 'reddit'])
     async def r(self, ctx: commands.Context, sub_reddit: str, loop: int=1) -> None:
         await self.client.reddit(ctx, sub_reddit=sub_reddit, loop=loop)
 
 
-    @COMMAND()
+    @commands.command()
     async def meme(self, ctx: commands.Context, loop: int=1):
         await self.client.reddit(ctx, 'meme', loop)
 
 
-    @COMMAND()
+    @commands.command()
     async def memes(self, ctx: commands.Context, loop: int=1):
         await self.client.reddit(ctx, 'memes', loop)
 
 
-    @COMMAND()
+    @commands.command()
     async def dankmemes(self, ctx: commands.Context, loop: int=1):
         await self.client.reddit(ctx, 'dankmemes', loop)
 
@@ -282,7 +281,7 @@ class Nsfw(commands.Cog):
         self.client = client
 
 
-    @NSFW()
+    @commands.is_nsfw()
     async def nsfw(self, ctx: commands.Bot) -> None:
         print('PORN YOU FUCKING HORNY BITCH')
 
@@ -293,7 +292,7 @@ class User(commands.Cog):
         self.client: Bot = client
 
 
-    @COMMAND(aliases=['av'])
+    @commands.command(aliases=['av'], help='See avatar')
     async def pfp(self, ctx: commands.Context, member: discord.Member=None) -> None:
         """ | Profile Pic command |
 
@@ -349,7 +348,7 @@ class Misc(commands.Cog):
         self.client = client
 
     
-    @COMMAND()
+    @commands.command()
     async def ping(self, ctx: commands.Context):
         await ctx.reply(
             embed=discord.Embed(
@@ -359,7 +358,7 @@ class Misc(commands.Cog):
         )
 
 
-    @COMMAND()
+    @commands.command()
     async def invite(self, ctx: commands.Context) -> None:
         await ctx.send(
             embed=discord.Embed(
@@ -371,7 +370,7 @@ class Misc(commands.Cog):
         )
 
 
-    @COMMAND()
+    @commands.command()
     async def google(self, ctx: commands.Context, *, google_search: str) -> None:
         """ | google command |
 
