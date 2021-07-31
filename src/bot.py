@@ -58,13 +58,18 @@ class Bot(commands.Bot):
         
         super().__init__(command_prefix=command_prefix, **options) # init commands.Bot
 
+        # private:
         self.__args: list[str] = args or None
         self._default_prefix: str = command_prefix
         
         
+        # public:
         self.reddit: Reddit = Reddit()
-        self.reference: Reference = None
 
+        # This is None bc It need the Bot object when It's ready
+        self.reference: Reference = None 
+
+        # This get used when 8ball command is used
         self._8ball_says: list[str] = [ # TODO: Put it in a json file, and not hard coded
             'no.', 
             'no???', 
@@ -83,8 +88,48 @@ class Bot(commands.Bot):
         ]
 
 
+    def get_member(self, member: str) -> discord.Member:
+        """ Get member from string
+        
+        This is used for to get members from non-member objects -
+        Like you have a string "<@!275192642101313536>" or "275192642101313536" -
+        but you want to get the `discord.Member` object
+
+        Parmeters
+        ----------
+            member: :class:`str`
+                This can be and ID or a mention string
+
+
+        Raises
+        -------
+            MemberNotFound
+
+
+        Returns
+        --------
+            discord.Member
+        
+        """
+
+        try:
+            return self.get_user(int(member)) # Checks if member is an ID
+        except ValueError:
+            if member.startswith('<@!'): # Its a member
+                return self.get_user(int(member[3:-1]))
+            else:
+                raise MemberNotFound('**%s**' % member)
+
+
+    # 
+    # Normal function up here (not async)
+    # --------------------------------------------------------
+    # async functions down here
+    # 
+
+
     async def get_prefix(self, message: discord.Message) -> str:
-        """ |Get prefix per server|
+        """ Get prefix per server
 
         Gets called when processing command.
 
@@ -105,6 +150,12 @@ class Bot(commands.Bot):
                 prefix = p[str(message.guild.id)]
         
         return prefix
+
+
+
+    # --------------------------------------------------------------
+    # events down here
+    # 
 
 
     # event
@@ -135,15 +186,4 @@ class Bot(commands.Bot):
         # TODO: Add stuff: e.g: Bad works, Leveling, etc
 
         await self.process_commands(message)
-
-
-
-    def get_member(self, member: str) -> discord.Member:
-        try:
-            return self.get_user(int(member)) # Checks if member is an ID
-        except ValueError:
-            if member.startswith('<@!'): # Its a member
-                return self.get_user(int(member[3:-1]))
-            else:
-                raise MemberNotFound('**%s**' % member)
 
