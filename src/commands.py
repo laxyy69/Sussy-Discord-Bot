@@ -475,6 +475,43 @@ class User(commands.Cog):
         await ctx.send(embed=embed)
 
 
+    @commands.command()
+    async def kiss(self, ctx: commands.Context, member: discord.Member) -> None:
+        author: discord.Member = ctx.author
+
+        des = "**%s** gives **%s** a kiss. :kiss:" % (author.display_name, member.display_name) if member != author else "***Kissing yourself? Kinda sus, ngl***"
+
+        msg: discord.Message = await ctx.send(
+            embed=discord.Embed(
+                description=des,
+                colour=discord.Colour.from_rgb(255, 0, 0)
+            )
+        )
+
+        if (random.randint(0, 1) == 1) and (member != author):
+            await asyncio.sleep(random.randint(0, 2))
+
+            await msg.reply(
+                random.choice(
+                    [
+                        "WoW! So *Romantic* :heart:",
+                        "Gay??",
+                        "sus",
+                        "Sussy!",
+                        ":heart:",
+                        ":heart: :heart:",
+                        "Hmmm :unamused:",
+                        ":unamused:",
+                        "Hmmmm",
+                        "Damn! That's *`real gay`*",
+                        ":angry:",
+                        ":zipper_mouth:",
+                        ":rainbow_flag:",
+                        ":flushed:"
+                    ]
+                )
+            )
+
 
 @add_class
 class Misc(commands.Cog):
