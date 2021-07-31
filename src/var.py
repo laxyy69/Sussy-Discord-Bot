@@ -1,7 +1,7 @@
 """
 This is not an script file, It's meant to be imported.
 
-This is for interacting with '../var/'.json files
+This is for interacting with '../jsonfiles/'.json files
 
 
 Author: SasumaTho
