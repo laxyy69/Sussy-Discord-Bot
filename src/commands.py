@@ -19,6 +19,7 @@ import discord
 import inspect
 import os
 import random
+from discord.ext.commands.errors import MemberNotFound
 from googlesearch import search
 from discord import colour
 from bot import Bot # Importing Bot for type-checking
@@ -49,6 +50,16 @@ def add_class(cls: commands.Cog) -> commands.Cog:
     commands_classes.append(cls)
 
     return cls
+
+
+
+async def command_success(message: Union[discord.Message, commands.Context]) -> None:
+    if isinstance(message, commands.Context):
+        message: discord.Message = message.message
+
+    await message.add_reaction('✅')
+
+
 
 
 @add_class
@@ -409,6 +420,28 @@ class User(commands.Cog):
                 embed.description="%s **%s**" % (_type, _game)
 
         await ctx.send(embed=embed)
+
+
+    @commands.command()
+    async def forward(self, ctx: commands.Context, *members) -> None:
+        if not members:
+            members = (str(ctx.author.id),)
+
+        try:
+            rmsg = await self.client.reference(ctx.message)
+        except self.client.reference.NoneReference as e:
+            return await ctx.message.reply(e)
+        else:
+            link = rmsg.jump_url
+            
+            embed = discord.Embed(description=rmsg.content)
+            embed.set_footer(text='Forwarded')
+            embed.set_author(name='Message link', url=link, icon_url=rmsg.author.avatar_url)
+
+            for member in members:
+                await self.client.get_member(member).send('From **%s**' % ctx.author, embed=embed)
+            else:
+                await command_success(ctx)
 
 
 

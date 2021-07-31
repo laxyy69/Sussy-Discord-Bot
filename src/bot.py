@@ -10,8 +10,10 @@ Status: Still in development
 """
 
 import discord
+from discord.ext.commands.errors import MemberNotFound
 from var import MyJson
 from reddit import Reddit
+from reference import Reference
 from discord.ext import commands
 
 
@@ -61,6 +63,7 @@ class Bot(commands.Bot):
         
         
         self.reddit: Reddit = Reddit()
+        self.reference: Reference = None
 
 
     async def get_prefix(self, message: discord.Message) -> str:
@@ -70,7 +73,7 @@ class Bot(commands.Bot):
 
         Parameters
         -----------
-            message (discord.Message)
+            message: :class:`discord.Message`
         
         Returns
         --------
@@ -91,19 +94,18 @@ class Bot(commands.Bot):
     async def on_ready(self):
         """ This saying when It's ready. """
 
+        self.reference = Reference(self)
+        
+
         print(self.user, 'online!')
 
     # event
     async def on_message(self, message: discord.Message) -> None:
-        """|on message sent event|
-
-        1: It's going to count each message sent.
-        2: Checks for bad words
-        3: And process commands
+        """ | on message event |
 
         Parameters
         -----------
-            message (discord.Message)
+            message: :class:`discord.Message`
 
         Returns
         --------
@@ -116,3 +118,15 @@ class Bot(commands.Bot):
         # TODO: Add stuff: e.g: Bad works, Leveling, etc
 
         await self.process_commands(message)
+
+
+
+    def get_member(self, member: str) -> discord.Member:
+        try:
+            return self.get_user(int(member)) # Checks if member is an ID
+        except ValueError:
+            if member.startswith('<@!'): # Its a member
+                return self.get_user(int(member[3:-1]))
+            else:
+                raise MemberNotFound('**%s**' % member)
+
