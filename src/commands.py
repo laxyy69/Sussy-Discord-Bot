@@ -27,10 +27,6 @@ from var import MyJson
 
 
 # This is used to @ decorate a functions
-COMMAND = commands.command
-OWNER = commands.is_owner
-NSFW = commands.is_nsfw
-
 
 commands_classes: list[commands.Cog] = []
 
@@ -340,6 +336,80 @@ class User(commands.Cog):
                     "I rate it: **%i** out of 10" % random.randint(0, 10)
                 ])
             )
+
+
+    @commands.command()
+    async def status(self, ctx: commands.Context, member: Union[discord.Member, str]=None, args=None) -> None:
+        if isinstance(member, str):
+            args = member
+            member = ctx.author
+        
+        def get_nice_type(_type):
+            return str(_type[0][0].upper() + _type[0][1:])
+
+
+        status_icon = {
+            'online': 'https://emoji.gg/assets/emoji/9166_online.png',
+            'dnd': 'https://emoji.gg/assets/emoji/7907_DND.png',
+            'offline': 'https://emoji.gg/assets/emoji/7445_status_offline.png',
+            'idle': 'https://i.redd.it/kp69do60js151.png'
+        }
+
+        member = member or ctx.author
+        _status = member.status
+
+        status_platform = member._client_status.copy()
+
+        del status_platform[None]
+
+        if str(_status) == 'dnd':
+            _status = 'Do Not Disturb'
+
+        _status = '%s  -  %s' % (_status, ', '.join(list(status_platform)))
+
+        activities = member.activities
+
+        embed = discord.Embed(colour=discord.Colour.blue())
+        embed.set_author(name=member, icon_url=member.avatar_url)
+        embed.set_footer(text=_status, icon_url=status_icon[str(member.status)])
+
+        if args == 'more':
+            status = []
+
+            for act in activities:
+                # TODO: Clean up code
+
+                if str(type(act)) == "<class 'discord.activity.Activity'>":
+                    details = ''
+                    if act.details is not None:
+                        details = '\n> %s\n> %s\n%s' % (act.details, act.state, act.url or '')
+
+                    status.append("%s **%s**%s" % (get_nice_type(act.type), act.name, details))
+                elif str(type(act)) == "<class 'discord.activity.Spotify'>": # The user is playing spotify
+                    embed.set_thumbnail(url=act.album_cover_url)
+                    status.append("%s\n> **%s** - by __%s__\n> on __%s__" % ('%s To %s' % (get_nice_type(act.type), act), act.title, ', '.join(act.artists), act.album))
+                else:
+                    status.append('%s **%s**' % (get_nice_type(act.type), act))
+
+            status = '\n'.join(status)
+
+            embed.description = status
+        elif args == '-d':
+            embed.description = str(activities)
+            embed.set_footer(text=str(member._client_status))
+        else:
+            if not len(activities) == 0:
+                _type = get_nice_type(activities[0].type)
+                _game = activities[0].name
+
+                if not _type == "Playing":
+                    if not activities[0].emoji is None:
+                        _game = "%s %s" % (activities[0].emoji, _game)
+
+                embed.description="%s **%s**" % (_type, _game)
+
+        await ctx.send(embed=embed)
+
 
 
 @add_class
