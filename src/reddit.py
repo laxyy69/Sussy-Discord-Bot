@@ -12,6 +12,7 @@ Status: Still in development
 
 
 
+import asyncio
 import random
 import aiohttp
 import discord
@@ -30,12 +31,26 @@ class Reddit(aiohttp.ClientSession):
         super().__init__()
         
         self.types: list[str] = ['hot', 'top', 'new']
-        self.max_loop: int = 25
+        self.max_loop: int = 5
+
+        self.able_to_not_use: list[int] = []
+
+
+
+    async def cooldown(self, id: int, wait_time: int) -> None:
+        await asyncio.sleep(self.wait_time)
+
+        self.able_to_not_use.remove(id)
 
     
     async def __call__(self, ctx: commands.Context, sub_reddit: str, loop: int=1) -> None:
+
+        # TODO: Doc this code
+
+        if ctx.author.id in self.able_to_not_use:
+            return await ctx.reply("Chill down!")
+
         self.reddit_url: str = 'https://www.reddit.com/r/{}/%s.json?sort=%s' % (random.choice(self.types), random.choice(self.types))
-        print(self.reddit_url)
         
         channel: discord.TextChannel = ctx.channel
         loop = self.max_loop if loop > self.max_loop else loop
@@ -52,6 +67,7 @@ class Reddit(aiohttp.ClientSession):
                     colour=discord.Colour.from_rgb(255, 0, 0)
                 )
             )
+        self.able_to_not_use.append(ctx.author.id)
 
         for i in range(loop):
             data = children[random.randint(0, len(children) - 1)]['data']
@@ -67,3 +83,5 @@ class Reddit(aiohttp.ClientSession):
                 await ctx.send(embed=embed)
             else:
                 await ctx.send(url)
+
+        asyncio.create_task(self.cooldown(ctx.author.id, wait_time=loop))
