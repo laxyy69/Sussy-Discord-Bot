@@ -15,7 +15,7 @@ Status: Still in development.
 import json
 
 class MyJson:
-    folder: str = 'var/'
+    folder: str = 'jsonfiles/'
 
     def __init__(self, filename: str, write: bool=False) -> None:
         self.filename: str = filename
