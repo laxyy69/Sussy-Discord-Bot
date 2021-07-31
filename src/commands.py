@@ -13,12 +13,15 @@ Status: Still in development.
 
 
 import asyncio
+from datetime import datetime
 from types import FunctionType
 from typing import OrderedDict, Union
+from asyncio.tasks import create_task
 import discord
 import inspect
 import os
 import random
+from discord.ext.commands.core import command
 from discord.ext.commands.errors import MemberNotFound
 from googlesearch import search
 from discord import colour
@@ -442,6 +445,34 @@ class User(commands.Cog):
                 await self.client.get_member(member).send('From **%s**' % ctx.author, embed=embed)
             else:
                 await command_success(ctx)
+
+
+    @commands.command()
+    async def info(self, ctx: commands.Context, member: discord.Member=None) -> None:
+        member: discord.Member = member or ctx.author
+
+        member_created_at: datetime = member.created_at
+        nick: str = member.nick
+
+        created = member_created_at.strftime(f"%A, %B %d %Y @ %H:%M %p")
+        joined = member.joined_at.strftime(f"%A, %B %d %Y @ %H:%M %p")
+
+        embed = discord.Embed(
+            title=member,
+            description=str("Aka: **`%s`**" % nick if nick else '') + "\n%s" % member.mention,
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=member.avatar_url)
+
+        embed.add_field(name='Account created at', value='> `%s`' % created, inline=False)
+        embed.add_field(name='Joined this server at', value='> `%s`' % joined, inline=False)
+        embed.add_field(name='Age of account', value='> `%s`' % (datetime.today() - member_created_at), inline=False)
+        embed.add_field(name='Admin', value='`%s`' % member.guild_permissions.administrator)
+        embed.add_field(name='Bot', value='`%s`' % member.bot)
+        embed.add_field(name='ID', value='`%i`' % member.id)
+
+
+        await ctx.send(embed=embed)
 
 
 
