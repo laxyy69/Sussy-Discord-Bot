@@ -167,8 +167,6 @@ class Nerd(commands.Cog):
         except KeyError:
             return None
         else:
-            print(cmd_function.__code__.co_filename)
-
             source_code: str = inspect.getsource(cmd_function)
                 
             with open('source_code.py', 'w') as f:
@@ -204,8 +202,6 @@ class Nerd(commands.Cog):
         except AttributeError as e:
             return None
         else:
-            print(func.__code__.co_filename)
-
             source_code: str = inspect.getsource(func)
 
             with open('source_code.py', 'w') as f:
@@ -230,6 +226,8 @@ class Nerd(commands.Cog):
                 colour=discord.Colour.blue()
             )
         )
+
+        with open('source_code.py', 'w'): pass # Empty source_code.py
 
 
     @commands.command()
