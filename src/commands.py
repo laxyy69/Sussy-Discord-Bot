@@ -24,7 +24,7 @@ import os
 import random
 from discord.ext.commands.core import command
 from discord.ext.commands.errors import MemberNotFound
-from googlesearch import search
+from copy_lib.googlesearch import search
 from discord import colour
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
