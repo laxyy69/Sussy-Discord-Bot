@@ -45,7 +45,7 @@ class Bot(commands.Bot):
     ...
     """
 
-    def __init__(self, command_prefix: str, args: list[str]=None, **options):
+    def __init__(self, command_prefix: str, args: list[str]=None, running_tictactoe=None, **options):
         """
         Parameters
         -----------
@@ -65,6 +65,9 @@ class Bot(commands.Bot):
         
         # public:
         self.reddit: Reddit = Reddit()
+        self.running_tictactoe = running_tictactoe
+
+        self.reactions_add: dict = {}
 
         # This is None bc It need the Bot object when It's ready
         self.reference: Reference = None 
@@ -85,6 +88,21 @@ class Bot(commands.Bot):
             "ask again later when I'm less busy with ur daddy", 
             'sure, why not', 
             "heck off, you know that's a no"
+        ]
+        self.ttt_winner_says = [ # TODO: Put it in a json file, and not hard coded
+            "Damn! That was **EZ**",
+            "GG",
+            "gg",
+            "good.  -_-",
+            "gg wp",
+            "GG WP",
+            "wp",
+            "WP",
+            ">:)",
+            "Man, that was sooo EZ",
+            "Noobs! You can't beat me!",
+            "What?! I won? pufff ez",
+            "ez pz lz"
         ]
 
 
@@ -187,3 +205,14 @@ class Bot(commands.Bot):
 
         await self.process_commands(message)
 
+
+    # event
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None:
+        if payload.user_id == self.user.id:
+            return
+
+        if payload.message_id in self.reactions_add:
+            delete = await self.reactions_add[payload.message_id](payload)
+
+            if delete is True:
+                del self.reactions_add[payload.message_id]

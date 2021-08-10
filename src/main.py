@@ -14,6 +14,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from bot import Bot
+from tictactoe import RunningTicTacToe
 
 PREFIX='.'
 
@@ -36,6 +37,7 @@ def main(args: list[str]) -> None:
     client = Bot(
         command_prefix=PREFIX,
         args=args,
+        running_tictactoe=RunningTicTacToe(),
         intents=discord.Intents().all()
     )
     

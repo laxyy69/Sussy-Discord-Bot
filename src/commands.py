@@ -28,6 +28,7 @@ from googlesearch import search
 from discord import colour
 from bot import Bot # Importing Bot for type-checking
 from discord.ext import commands
+from tictactoe import TicTacToe
 from var import MyJson
 
 
@@ -74,8 +75,8 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def test(self, ctx: commands.Context):
-        pass
+    async def test(self, ctx: commands.Context, member: discord.Member):
+        await ctx.send(embed=discord.Embed(title=member.name, colour=member.colour))
 
 
 @add_class
@@ -530,6 +531,18 @@ class Fun(commands.Cog):
         )
 
         await ctx.reply(embed=embed)
+
+
+    @commands.command(aliases=['ttt', 'tic-tac-toe'])
+    async def tictactoe(self, ctx: commands.Context, player1: Union[discord.Member, str], player2: discord.Member=None):
+        player2: discord.Member = player2 or ctx.author
+
+        ttt_game = TicTacToe(player1, player2)
+        await ttt_game.start(self.client, ctx)
+
+
+
+
 
 
 @add_class
