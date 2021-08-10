@@ -79,6 +79,19 @@ class Owner(commands.Cog):
         await ctx.send(embed=discord.Embed(title=member.name, colour=member.colour))
 
 
+    @commands.command()
+    @commands.is_owner()
+    async def servers(self, ctx: commands.Context, _list: str=None) -> None:
+        servers: discord.Guild = self.client.guilds
+
+        if _list == 'list':
+            return await ctx.send('\n'.join([server.name for server in servers]))
+        elif _list is None:
+            await ctx.send("I'm in **%i** servers." % len(servers))
+        else:
+            await ctx.reply("**%s**???" % _list)
+
+
 @add_class
 class Mod(commands.Cog):
     def __init__(self, client: Bot) -> None:
