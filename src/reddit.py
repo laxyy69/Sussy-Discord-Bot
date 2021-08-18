@@ -13,6 +13,7 @@ Status: Still in development
 
 
 import asyncio
+from asyncio.tasks import wait_for
 import random
 import aiohttp
 import discord
@@ -50,6 +51,8 @@ class Reddit(aiohttp.ClientSession):
         if ctx.author.id in self.able_to_not_use:
             return await ctx.reply("Chill down!")
 
+        wait_time: int = loop * 5
+
         self.reddit_url: str = 'https://www.reddit.com/r/{}/%s.json?sort=%s' % (random.choice(self.types), random.choice(self.types))
         
         channel: discord.TextChannel = ctx.channel
@@ -60,13 +63,17 @@ class Reddit(aiohttp.ClientSession):
         
         children = _json['data']['children']
         
-        if not channel.is_nsfw() and children[0]['data']['over_18']:
-            return await ctx.reply(
-                embed=discord.Embed(
-                    title=':underage: **This is not an NSFW text channel.**',
-                    colour=discord.Colour.from_rgb(255, 0, 0)
+        if children[0]['data']['over_18']:
+            if not channel.is_nsfw():
+                return await ctx.reply(
+                    embed=discord.Embed(
+                        title=':underage: **This is not an NSFW text channel.**',
+                        colour=discord.Colour.from_rgb(255, 0, 0)
+                    )
                 )
-            )
+            loop = 1
+            wait_time = wait_time * 2
+
         self.able_to_not_use.append(ctx.author.id)
 
         for i in range(loop):
@@ -84,4 +91,4 @@ class Reddit(aiohttp.ClientSession):
             else:
                 await ctx.send(url)
 
-        asyncio.create_task(self.cooldown(ctx.author.id, wait_time=loop * 5))
+        asyncio.create_task(self.cooldown(ctx.author.id, wait_time=wait_time))
