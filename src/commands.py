@@ -550,6 +550,11 @@ class Fun(commands.Cog):
     async def tictactoe(self, ctx: commands.Context, player1: Union[discord.Member, str], player2: discord.Member=None):
         player2: discord.Member = player2 or ctx.author
 
+        if player1 == player2:
+            return await ctx.reply("You can't play against yourself.")
+        
+        print(player1.name, 'vs.', player2.name)
+
         ttt_game = TicTacToe(player1, player2)
         await ttt_game.start(self.client, ctx)
 
