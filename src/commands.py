@@ -85,7 +85,7 @@ class Owner(commands.Cog):
         servers: discord.Guild = self.client.guilds
 
         if _list == 'list':
-            return await ctx.send('\n'.join([server.name for server in servers]))
+            return await ctx.send('\n'.join(['%s - %i members' % (server.name, len(server.members)) for server in servers]))
         elif _list is None:
             await ctx.send("I'm in **%i** servers." % len(servers))
         else:
