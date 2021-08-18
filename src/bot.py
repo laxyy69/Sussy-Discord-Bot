@@ -181,7 +181,7 @@ class Bot(commands.Bot):
         """ This saying when It's ready. """
 
         self.reference = Reference(self)
-        
+        await self.change_presence(activity=discord.Game(name="%shelp" % self._default_prefix))
 
         print(self.user, 'online!')
 
