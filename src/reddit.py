@@ -38,7 +38,7 @@ class Reddit(aiohttp.ClientSession):
 
 
     async def cooldown(self, id: int, wait_time: int) -> None:
-        await asyncio.sleep(self.wait_time)
+        await asyncio.sleep(wait_time)
 
         self.able_to_not_use.remove(id)
 
@@ -84,4 +84,4 @@ class Reddit(aiohttp.ClientSession):
             else:
                 await ctx.send(url)
 
-        asyncio.create_task(self.cooldown(ctx.author.id, wait_time=loop))
+        asyncio.create_task(self.cooldown(ctx.author.id, wait_time=loop * 5))
